@@ -14,7 +14,7 @@ YOUR_PROJECT_NAME = 'POD_Factory_v5'
 
 # Query parameters
 query_path = "Shared Queries/Tst"  # Updated query path
-query_name_prefix = "template_4"
+query_name_prefix = "template_14"
 query_count = 1
 
 # Encode special characters in the query path
@@ -40,8 +40,33 @@ for i in range(1, query_count + 1):
     query_name = f"{query_name_prefix} {i}"
     query_body = {
         "name": query_name,
-        "wiql": "SELECT [System.Id], [System.Title] FROM WorkItems WHERE [System.TeamProject] = @project AND [System.State] <> 'Closed'",
+        
+        "wiql": "SELECT \
+            [System.Id], \
+            [System.WorkItemType], \
+            [System.Title], \
+            [System.AssignedTo], \
+            [System.State], \
+            [System.Tags] \
+        FROM workitemLinks \
+        WHERE \
+            ( \
+                [Source].[System.TeamProject] = @project \
+                AND [Source].[System.WorkItemType] = 'User Story' \
+                AND [Source].[System.Id] = 333055 \
+            ) \
+            AND ( \
+                [System.Links.LinkType] = 'System.LinkTypes.Hierarchy-Forward' \
+            ) \
+            AND ( \
+                [Target].[System.TeamProject] = @project \
+                AND [Target].[System.WorkItemType] <> '' \
+            ) \
+        MODE (Recursive)",
+
         "isFolder": False,
+        "queryType": "tree",
+        "isRecursive": True
     }
     
     # Send POST request to create the query
